@@ -1,17 +1,14 @@
 import React, {Component} from 'react';
 import Counter from 'components/Counter';
 import { connect } from 'react-redux';
-import {bindActionCreators} from 'redux';
-import * as counterActions from 'store/modules/counter';
+import {CounterActions} from 'store/actionCreators';
 
 class CounterContainer extends Component {
   handleIncrement = () => {
-    const {CounterActions} = this.props;
     CounterActions.increment();
   }
 
   handleDecrement = () => {
-    const {CounterActions} = this.props;
     CounterActions.decrement();
   }
 
@@ -52,8 +49,5 @@ class CounterContainer extends Component {
 export default connect(
   (store) => ({
     number: store.counter.number
-  }),
-  (dispatch) => ({
-    CounterActions: bindActionCreators(counterActions, dispatch)
   })
 )(CounterContainer);

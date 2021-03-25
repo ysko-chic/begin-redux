@@ -16,8 +16,8 @@ const Todos = ({todos, input, onInsert, onToggle, onRemove, onChange }) => {
   
   const todoItems = todos.map(
     todo => {
-      const { id, checked, text } = todo;
-      return (
+      const { id, checked, text } = todo; // todo는 Map이므로 todo.toJS()를 하여 일반객체로 만들어 줘야 비구조화 할당 사용이 가능하다. 일반 todo로 사용하려면 Map 대신 Record를 사용
+      return (                            // Record는 초반에 정의한 값만 사용할 수 있다.(feat. todo.js)
         <TodoItem
           id={id}
           checked={checked}

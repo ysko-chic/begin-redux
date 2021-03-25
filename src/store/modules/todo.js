@@ -1,5 +1,5 @@
-import { createAction, handleActions } from 'redux-actions';
-import produce from 'immer';
+import {createAction, handleActions} from 'redux-actions';
+import {Record, List} from 'immutable';
 
 const CHANGE_INPUT = 'todo/CHANGE_INPUT';
 const INSERT = 'todo/INSERT';
@@ -11,42 +11,33 @@ export const insert = createAction(INSERT, text => text);
 export const toggle = createAction(TOGGLE, id => id);
 export const remove = createAction(REMOVE, id => id);
 
-let id = 0; // todo 아이템에 들어갈 고유 값 입니다
+let id = 0;
 
-
-// 그냥 일반 객체, 내부에는 일반 배열이 들어갑니다.
-const initialState = {
+const initialState = Record({
   input: '',
-  todos: []
-};
+  todos: List()
+})();
+
+const TodoRecord = Record({ // Record는 초반에 정의한 값만 사용할 수 있다. 다른곳에서 현재 상태에 변수를 추가하려면 Map.set("number", 1) 이런식으로 Map을 사용
+  id: id++,
+  text: '',
+  checked: false
+});
 
 export default handleActions({
-  [CHANGE_INPUT]: (state, action) => produce(state, draft => {
-    draft.input = action.payload;
-  }),
-  [INSERT]: (state, { payload: text }) => {
-    const item = {
-      id: id++,
-      text,
-      checked: false
-    };
-    return produce(state, (draft) => {
-      draft.todos.push(item); // 그냥 push!
-    });
+  [CHANGE_INPUT]: (state, action) => state.set('input', action.payload),
+  [INSERT]: (state, {payload: text}) => {
+    const item = TodoRecord({id: id++, text: text});
+    return state.update('todos', todos => todos.push(item));
   },
-  [TOGGLE]: (state, { payload: id }) => {
-    // 인덱스 가져와서
-    const index = state.todos.findIndex(item => item.id === id);
-    return produce(state, (draft) => {
-      // 그냥 반전시키기!
-      draft.todos[index].checked = !draft.todos[index].checked;
-    });
+  [TOGGLE]: (state, {payload: id}) => {
+    const index = state.get('todos').findIndex(item => item.get('id') === id);
+    return state.updateIn(['todos', index, 'checked'], checked => !checked);
   },
-  [REMOVE]: (state, { payload: id }) => {
-    // id 값을 가진 index 를 찾아서 지웁니다.
-    const index = state.todos.findIndex(item => item.id === id);
-    return produce(state, (draft) => {
-      draft.todos.splice(index, 1); // 지울때는 splice 를 사용합니다.
-    });
+  [REMOVE]: (state, {payload: id}) => {
+    const index = state.get('todos').findIndex(item => item.get('id') === id);
+    return state.deleteIn(['todos', index]);
   }
 }, initialState);
+
+
